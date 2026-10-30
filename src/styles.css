@@ -381,3 +381,17 @@
   .reject-modal{padding:20px}
   .reject-modal h2{font-size:15px}
 }
+
+
+/* Ensure rejection confirmation button text stays high contrast */
+.reject-modal-footer .btn.danger.reject-confirm{
+  color:#fff;
+  font-weight:700;
+}
+.reject-modal-footer .btn.danger.reject-confirm:hover:not(:disabled){
+  color:#fff;
+}
+.reject-modal-footer .btn.danger.reject-confirm:disabled{
+  color:#fff;
+  opacity:.55;
+}
