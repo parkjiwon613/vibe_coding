@@ -9,8 +9,23 @@ function localSenderNameApi(env: Record<string, string>) {
         res.setHeader("Cache-Control", "no-store");
         res.setHeader("Content-Type", "application/json; charset=utf-8");
 
+        const supabaseUrl =
+          env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+        const supabasePublishableKey =
+          env.SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+        // Safe local health check: returns only whether server config is present.
+        if (req.method === "GET") {
+          res.statusCode = 200;
+          res.end(JSON.stringify({
+            endpoint: "save-sender-name",
+            ready: Boolean(supabaseUrl && supabasePublishableKey),
+          }));
+          return;
+        }
+
         if (req.method !== "POST") {
-          res.setHeader("Allow", "POST");
+          res.setHeader("Allow", "GET, POST");
           res.statusCode = 405;
           res.end(JSON.stringify({ error: "허용되지 않은 요청 방식입니다." }));
           return;
@@ -44,13 +59,6 @@ function localSenderNameApi(env: Record<string, string>) {
             res.end(JSON.stringify({ error: "송금인 이름은 1~70자로 입력해 주세요." }));
             return;
           }
-
-          // Support both the preferred server-only names and existing VITE_ names.
-          // loadEnv reads these only for this local server middleware.
-          const supabaseUrl =
-            env.SUPABASE_URL || env.VITE_SUPABASE_URL;
-          const supabasePublishableKey =
-            env.SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
           if (!supabaseUrl || !supabasePublishableKey) {
             res.statusCode = 500;
