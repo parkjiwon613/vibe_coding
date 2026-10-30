@@ -408,3 +408,35 @@
 .rate-neutral{display:block;color:#788596;font-size:9px;margin:6px 0}
 .down{display:block;color:#c44752;font-size:9px;margin:6px 0}
 .session-warning{color:#c44752!important;font-variant-numeric:tabular-nums}
+
+
+/* Visible feedback for sender-name save and other app notifications */
+.toast{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  z-index:1200;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:max-content;
+  max-width:min(460px,calc(100vw - 32px));
+  padding:13px 16px;
+  border:1px solid #31445b;
+  border-radius:7px;
+  background:#172235;
+  color:#fff;
+  box-shadow:0 12px 34px rgba(15,23,42,.22);
+  font-size:12px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+  animation:toast-in .18s ease-out both;
+}
+.toast svg{flex:0 0 auto;color:#6ee7b7}
+@keyframes toast-in{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(max-width:600px){
+  .toast{right:12px;bottom:12px;max-width:calc(100vw - 24px)}
+}
