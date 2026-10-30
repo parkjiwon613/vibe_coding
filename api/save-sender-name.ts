@@ -43,8 +43,14 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+  // Prefer server-only names. Fall back to the existing VITE_ names so
+  // current local .env.local and Vercel settings keep working without edits.
+  // The values are read only in this server function, never in browser code.
+  const supabaseUrl =
+    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabasePublishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabasePublishableKey) {
     console.error("Server-side Supabase environment variables are missing.");
