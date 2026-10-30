@@ -395,3 +395,16 @@
   color:#fff;
   opacity:.55;
 }
+
+
+/* Live FX quote and session countdown */
+.fx-disclaimer{
+  display:block;
+  margin-top:8px;
+  color:#8994a3;
+  font-size:8px;
+  line-height:1.5;
+}
+.rate-neutral{display:block;color:#788596;font-size:9px;margin:6px 0}
+.down{display:block;color:#c44752;font-size:9px;margin:6px 0}
+.session-warning{color:#c44752!important;font-variant-numeric:tabular-nums}
