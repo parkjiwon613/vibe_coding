@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import type { ReactNode, ComponentType } from "react";
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { Activity, AlertTriangle, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Bell, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Download, Eye, FileBarChart, FileCheck, FileText, Filter, Globe2, Landmark, LayoutDashboard, LifeBuoy, MoreHorizontal, Printer, RefreshCw, Search, ShieldCheck, UploadCloud, Users, Wallet, X, Zap } from "lucide-react";
 type Page="dashboard"|"input"|"method"|"evidence"|"approvals"|"ledger"|"detail";
 type Tone="teal"|"blue"|"amber"|"red"|"green"|"slate";
@@ -15,12 +16,54 @@ function Tag({children,tone="slate"}:{children:ReactNode;tone?:Tone}){return <sp
 function Field({label,children}:{label:string;children:ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 function Heading({title,crumb}:{title:string;crumb:string}){return <div className="heading"><div className="crumb">외환관리 <ChevronRight size={12}/>{crumb}</div><h1>{title}</h1></div>}
 function Steps({active}:{active:number}){return <div className="steps">{["정보 입력","조건 확인","증빙 첨부"].map((s,i)=><span key={s} className={active===i+1?"current":active>i+1?"done":""}><b>{active>i+1?<Check size={12}/>:i+1}</b>{s}</span>)}</div>}
-function Metric({label,value,note,icon:Icon}:{label:string;value:string;note:string;icon:ComponentType<{size?:number}>}){return <div className="metric"><div>{label}<span><Icon size={16}/></span></div><strong>{value}</strong><small>{note}</small></div>}
-export default function App(){
+function Metric({
+  label,
+  value,
+  note,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  note: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <div className="metric">
+      <div>
+        {label}
+        <span>
+          <Icon size={16} />
+        </span>
+      </div>
+      <strong>{value}</strong>
+      <small>{note}</small>
+    </div>
+  );
+}export default function App(){
  const [page,setPage]=useState<Page>("dashboard"),[toast,setToast]=useState(""),[tab,setTab]=useState("전체"),[status,setStatus]=useState("전체 상태"),[query,setQuery]=useState(""),[selected,setSelected]=useState<Tx>(txs[0]),[method,setMethod]=useState<"stable"|"swift">("stable"),[beneficiary,setBeneficiary]=useState("Apex Global Tech Ltd."),[amount,setAmount]=useState("28,000.00"),[comment,setComment]=useState("북미 거래처 분기 서버 부품 수입 건에 대한 정기 결제입니다. 승인 부탁드립니다."),[docs,setDocs]=useState(["상업송장 (Commercial Invoice)","선하증권 (B/L)"]),[incident,setIncident]=useState(true),[swift,setSwift]=useState(false);
  const notify=(s:string)=>{setToast(s);window.setTimeout(()=>setToast(""),2500)},go=(p:Page)=>{setPage(p);window.scrollTo({top:0,behavior:"smooth"})};
- const rows=useMemo(()=>txs.filter(x=>(page!=="dashboard"||tab==="전체"||(tab==="USDC 블록체인"?x.rail.startsWith("USDC"):x.rail==="SWIFT GPI"))&&(page!=="ledger"||(status==="전체 상태"||status===x.state)&&(!query||[x.id,x.name,x.rail].some(y=>y.toLowerCase().includes(query.toLowerCase())))),[page,tab,status,query]);
- const open=(id:string)=>{setSelected(txs.find(x=>x.id===id)||txs[0]);go("detail")};
+const rows = useMemo(
+  () =>
+    txs.filter((x) => {
+      const matchesDashboardTab =
+        page !== "dashboard" ||
+        tab === "전체" ||
+        (tab === "USDC 블록체인"
+          ? x.rail.startsWith("USDC")
+          : x.rail === "SWIFT GPI");
+
+      const matchesLedgerFilters =
+        page !== "ledger" ||
+        ((status === "전체 상태" || status === x.state) &&
+          (!query ||
+            [x.id, x.name, x.rail].some((y) =>
+              y.toLowerCase().includes(query.toLowerCase())
+            )));
+
+      return matchesDashboardTab && matchesLedgerFilters;
+    }),
+  [page, tab, status, query]
+); const open=(id:string)=>{setSelected(txs.find(x=>x.id===id)||txs[0]);go("detail")};
  const exportCsv=()=>{const csv="\uFEFF"+[["거래번호","거래일시","수취기업","금액","정산 레일","상태"],...rows.map(x=>[x.id,x.date,x.name,x.amount,x.rail,x.state])].map(r=>r.join(",")).join("\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="remittance-ledger.csv";a.click();URL.revokeObjectURL(url);notify("거래내역 CSV를 내보냈습니다.")};
  const nav=[{id:"dashboard" as Page,label:"홈 (대시보드 / 업무 현황)",icon:LayoutDashboard},{id:"input" as Page,label:"해외송금 신청",icon:ArrowLeftRight},{id:"approvals" as Page,label:"승인관리",icon:FileCheck},{id:"ledger" as Page,label:"거래내역 (조회/상태)",icon:FileBarChart}];
  const table=(list:Tx[])=> <div className="table-scroll"><table><thead><tr><th>No</th><th>거래식별번호</th><th>수취기업</th><th>송금 금액</th><th>정산 레일</th><th>처리 상태</th><th>작업</th></tr></thead><tbody>{list.map((x,i)=><tr key={x.id}><td>{String(i+1).padStart(2,"0")}</td><td><button className="link" onClick={()=>open(x.id)}>{x.id}</button></td><td>{x.name}</td><td className="money">{x.amount} <small>USD</small></td><td><span className="rail">{x.rail}</span></td><td><Tag tone={x.tone}>{x.state}</Tag></td><td><button className="row-action" onClick={()=>open(x.id)}>상세보기</button></td></tr>)}</tbody></table>{!list.length&&<div className="empty">검색 조건에 맞는 거래내역이 없습니다.</div>}</div>;
