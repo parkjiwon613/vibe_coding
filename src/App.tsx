@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { ReactNode, ComponentType } from "react";
 import { Activity, AlertTriangle, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Bell, Check, CheckCircle2, ChevronDown, ChevronRight, Clock3, Download, Eye, FileBarChart, FileCheck, FileText, Filter, Globe2, Landmark, LayoutDashboard, LifeBuoy, MoreHorizontal, Printer, RefreshCw, Search, ShieldCheck, UploadCloud, Users, Wallet, X, Zap } from "lucide-react";
 type Page="dashboard"|"input"|"method"|"evidence"|"approvals"|"ledger"|"detail";
 type Tone="teal"|"blue"|"amber"|"red"|"green"|"slate";
@@ -9,12 +10,12 @@ const txs:Tx[]=[
 {id:"RM-20261028-0036",name:"Shenzhen Micro Instruments",amount:"15,800.00",rail:"SWIFT GPI",state:"증빙 반려",tone:"red",date:"10-28 11:22",country:"HK"},
 {id:"RM-20261028-0035",name:"EuroTech Materials GMBH",amount:"8,900.00",rail:"USDC (Ethereum)",state:"승인완료",tone:"green",date:"10-28 10:18",country:"DE"},
 {id:"RM-20261028-0031",name:"Tokyo Components Inc.",amount:"3,000.00",rail:"USDC (Polygon)",state:"확인 중",tone:"blue",date:"10-28 09:42",country:"JP"}];
-function Btn({children,onClick,kind=""}:{children:React.ReactNode;onClick?:()=>void;kind?:string}){return <button type="button" className={"btn "+kind} onClick={onClick}>{children}</button>}
-function Tag({children,tone="slate"}:{children:React.ReactNode;tone?:Tone}){return <span className={"tag "+tone}><i/>{children}</span>}
-function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
+function Btn({children,onClick,kind=""}:{children:ReactNode;onClick?:()=>void;kind?:string}){return <button type="button" className={"btn "+kind} onClick={onClick}>{children}</button>}
+function Tag({children,tone="slate"}:{children:ReactNode;tone?:Tone}){return <span className={"tag "+tone}><i/>{children}</span>}
+function Field({label,children}:{label:string;children:ReactNode}){return <label className="field"><span>{label}</span>{children}</label>}
 function Heading({title,crumb}:{title:string;crumb:string}){return <div className="heading"><div className="crumb">외환관리 <ChevronRight size={12}/>{crumb}</div><h1>{title}</h1></div>}
 function Steps({active}:{active:number}){return <div className="steps">{["정보 입력","조건 확인","증빙 첨부"].map((s,i)=><span key={s} className={active===i+1?"current":active>i+1?"done":""}><b>{active>i+1?<Check size={12}/>:i+1}</b>{s}</span>)}</div>}
-function Metric({label,value,note,icon:Icon}:{label:string;value:string;note:string;icon:React.ComponentType<{size?:number}>}){return <div className="metric"><div>{label}<span><Icon size={16}/></span></div><strong>{value}</strong><small>{note}</small></div>}
+function Metric({label,value,note,icon:Icon}:{label:string;value:string;note:string;icon:ComponentType<{size?:number}>}){return <div className="metric"><div>{label}<span><Icon size={16}/></span></div><strong>{value}</strong><small>{note}</small></div>}
 export default function App(){
  const [page,setPage]=useState<Page>("dashboard"),[toast,setToast]=useState(""),[tab,setTab]=useState("전체"),[status,setStatus]=useState("전체 상태"),[query,setQuery]=useState(""),[selected,setSelected]=useState<Tx>(txs[0]),[method,setMethod]=useState<"stable"|"swift">("stable"),[beneficiary,setBeneficiary]=useState("Apex Global Tech Ltd."),[amount,setAmount]=useState("28,000.00"),[comment,setComment]=useState("북미 거래처 분기 서버 부품 수입 건에 대한 정기 결제입니다. 승인 부탁드립니다."),[docs,setDocs]=useState(["상업송장 (Commercial Invoice)","선하증권 (B/L)"]),[incident,setIncident]=useState(true),[swift,setSwift]=useState(false);
  const notify=(s:string)=>{setToast(s);window.setTimeout(()=>setToast(""),2500)},go=(p:Page)=>{setPage(p);window.scrollTo({top:0,behavior:"smooth"})};
