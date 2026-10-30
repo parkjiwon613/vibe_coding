@@ -15,8 +15,25 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 
+  const supabaseUrl =
+    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabasePublishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  // Safe health check: reports configuration presence only, never returns key values.
+  if (req.method === "GET") {
+    return res.status(200).json({
+      endpoint: "save-sender-name",
+      ready: Boolean(supabaseUrl && supabasePublishableKey),
+      message: supabaseUrl && supabasePublishableKey
+        ? "Supabase server configuration is present."
+        : "Supabase server environment variables are missing.",
+    });
+  }
+
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ error: "허용되지 않은 요청 방식입니다." });
   }
 
@@ -42,15 +59,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       error: "송금인 이름은 1~70자로 입력해 주세요.",
     });
   }
-
-  // Prefer server-only names. Fall back to the existing VITE_ names so
-  // current local .env.local and Vercel settings keep working without edits.
-  // The values are read only in this server function, never in browser code.
-  const supabaseUrl =
-    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const supabasePublishableKey =
-    process.env.SUPABASE_PUBLISHABLE_KEY ||
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabasePublishableKey) {
     console.error("Server-side Supabase environment variables are missing.");
