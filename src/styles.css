@@ -139,3 +139,73 @@
   overflow-y:auto;
   line-height:1.6;
 }
+
+
+/* Consistent typography and spacing for approval line */
+.approver{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+  padding:12px 0;
+  border-bottom:1px solid #edf0f4;
+}
+.approver:last-child{
+  border-bottom:0;
+}
+.approver .approver-step{
+  display:grid;
+  place-items:center;
+  flex:0 0 42px;
+  width:42px;
+  height:32px;
+  border:1px solid #dfe7ed;
+  border-radius:5px;
+  background:#f3f6f9;
+  color:#536579;
+  font-family:inherit;
+  font-size:10px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:0;
+  white-space:nowrap;
+}
+.approver>span{
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  min-width:0;
+}
+.approver>span strong{
+  display:block;
+  color:#354154;
+  font-family:inherit;
+  font-size:11px;
+  font-weight:650;
+  line-height:1.4;
+  letter-spacing:-.1px;
+  word-break:keep-all;
+}
+.approver>span small{
+  display:block;
+  color:#8994a3;
+  font-family:inherit;
+  font-size:9px;
+  font-weight:400;
+  line-height:1.45;
+  letter-spacing:0;
+  overflow-wrap:anywhere;
+}
+.approver>.tag{
+  flex:0 0 auto;
+  margin-left:auto;
+  font-size:8px;
+  line-height:1.35;
+  white-space:nowrap;
+}
+@media(max-width:520px){
+  .approver{gap:9px}
+  .approver .approver-step{flex-basis:38px;width:38px}
+}
