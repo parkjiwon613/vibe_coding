@@ -45,7 +45,14 @@ function localSenderNameApi(env: Record<string, string>) {
             return;
           }
 
-          if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
+          // Support both the preferred server-only names and existing VITE_ names.
+          // loadEnv reads these only for this local server middleware.
+          const supabaseUrl =
+            env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+          const supabasePublishableKey =
+            env.SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+          if (!supabaseUrl || !supabasePublishableKey) {
             res.statusCode = 500;
             res.end(JSON.stringify({ error: "Supabase 서버 설정이 완료되지 않았습니다." }));
             return;
@@ -53,8 +60,8 @@ function localSenderNameApi(env: Record<string, string>) {
 
           try {
             const supabase = createClient(
-              env.SUPABASE_URL,
-              env.SUPABASE_PUBLISHABLE_KEY,
+              supabaseUrl,
+              supabasePublishableKey,
               {
                 auth: {
                   persistSession: false,
@@ -96,6 +103,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
+    // Do not expose any user-defined environment variables through import.meta.env.
+    // Supabase values are consumed exclusively by the server endpoint/middleware.
+    envPrefix: [],
     plugins: [localSenderNameApi(env)],
     server: {
       proxy: {
